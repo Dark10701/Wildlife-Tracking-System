@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wildlife Tracking</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>#map { height: 500px; width: 100%; }</style>
+</head>
+<body>
+    <h2>Real-Time Wildlife Tracking</h2>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([20, 77], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        function fetchTrackingData() {
+            fetch('/api/tracking')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(animal => {
+                        L.marker([animal.latitude, animal.longitude])
+                            .addTo(map)
+                            .bindPopup(`<b>${animal.name}</b><br>${animal.timestamp}`);
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        fetchTrackingData();
+        setInterval(fetchTrackingData, 60000);
+    </script>
+</body>
+</html>
